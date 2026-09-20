@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Книжный Онлайн-Магазин</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Шапка сайта -->
+    <header>
+        <a href="#" class="logo">📚 КнижныйРай</a>
+        <div class="nav-actions">
+            <button id="myBooksBtn" class="btn btn-outline" style="display: none;" onclick="openMyBooksModal()">Моя полка</button>
+            <span id="userBadge" class="user-badge">👤 <span id="userName">Гость</span></span>
+            <button id="loginNavBtn" class="btn btn-outline" onclick="openModal(false)">Войти</button>
+            <button id="registerNavBtn" class="btn btn-primary" onclick="openModal(true)">Регистрация</button>
+            <button id="logoutNavBtn" class="btn btn-outline" style="display: none;" onclick="logout()">Выйти</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Расширенная панель администратора -->
+        <div id="adminSection" class="admin-panel">
+            <h3 id="adminPanelTitle">🛠️ Добавить новую книгу в каталог</h3>
+            <p>Заполните поля ниже, чтобы выставить книгу на витрину. Цены аренды рассчитаются автоматически.</p>
+            
+            <form id="addBookForm" onsubmit="handleBookSubmit(event)">
+                <input type="hidden" id="editBookId" value="">
+                <div class="form-group flex-item">
+                    <label for="newTitle">Название книги</label>
+                    <input type="text" id="newTitle" required>
+                </div>
+                <div class="form-group flex-item">
+                    <label for="newAuthor">Автор</label>
+                    <input type="text" id="newAuthor" required>
+                </div>
+                <div class="form-group flex-item">
+                    <label for="newPrice">Цена покупки (₽)</label>
+                    <input type="number" id="newPrice" required>
+                </div>
+                <div class="form-group flex-item">
+                    <label for="newColor">Цвет обложки</label>
+                    <select id="newColor">
+                        <option value="cover-blue">Синий океан</option>
+                        <option value="cover-red">Классический бордовый</option>
+                        <option value="cover-green">Изумрудный</option>
+                        <option value="cover-purple">Фиолетовый закат</option>
+                        <option value="cover-gold">Золотой песок</option>
+                    </select>
+                </div>
+                <div class="form-group w-full" style="margin-top: 10px;">
+                    <label for="newAnnotation">Краткая аннотация произведения</label>
+                    <textarea id="newAnnotation" required rows="2" placeholder="О чем эта книга..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="submit" id="adminSubmitBtn" class="btn btn-admin">Добавить на витрину</button>
+                    <button type="button" id="cancelEditBtn" class="btn btn-outline" style="display: none; background: #fff;" onclick="resetAdminForm()">Отмена</button>
+                </div>
+            </form>
+
+            <!-- Таблица управления текущими книгами -->
+            <h4 style="margin-top: 30px; margin-bottom: 10px; color: #713f12;">📋 Текущий список книг в базе данных:</h4>
+            <div class="table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Обложка</th>
+                            <th>Название</th>
+                            <th>Автор</th>
+                            <th>Цена (₽)</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminBooksTableBody">
+                        <!-- Сюда JS подставит строки книг -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Баннер -->
+        <div class="hero">
+            <h1>Добро пожаловать в КнижныйРай!</h1>
+            <p>Интерактивная библиотека классики: покупайте навсегда или арендуйте на удобный срок.</p>
+        </div>
+
+        <!-- Живой поиск -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="🔍 Поиск по названию книги или автору..." oninput="handleSearch()">
+        </div>
+
+        <!-- Каталог -->
+        <h2>Школьная программа и классика</h2>
+        <div class="grid" id="booksGrid"></div>
+    </div>
+
+    <!-- Модальные окна остаются без изменений -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <h2 id="modalTitle">Личный кабинет</h2>
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="form-group" id="nameGroup">
+                    <label for="authName">Имя и фамилия</label>
+                    <input type="text" id="authName" placeholder="Иван Иванов">
+                </div>
+                <div class="form-group">
+                    <label for="authEmail">Электронная почта</label>
+                    <input type="email" id="authEmail" required placeholder="example@mail.ru">
+                </div>
+                <div class="form-group" id="phoneGroup">
+                    <label for="authPhone">Номер телефона</label>
+                    <input type="tel" id="authPhone" placeholder="+7 (999) 123-4567">
+                </div>
+                <div class="form-group">
+                    <label for="authPassword">Пароль</label>
+                    <input type="password" id="authPassword" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label for="authRole">Войти как</label>
+                    <select id="authRole">
+                        <option value="customer">Покупатель</option>
+                        <option value="admin">Администратор</option>
+                    </select>
+                </div>
+                <button type="submit" id="submitBtn" class="btn btn-primary w-full">Войти</button>
+            </form>
+            <div class="switch-form" id="switchFormContainer"></div>
+        </div>
+    </div>
+
+    <div id="annotationModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeAnnotationModal()">&times;</button>
+            <h2 id="annotationTitle" style="margin-bottom: 10px; color: var(--primary);">Название книги</h2>
+            <p id="annotationAuthor" style="font-style: italic; color: #64748b; margin-bottom: 15px;">Автор произведения</p>
+            <div id="annotationBody" style="line-height: 1.6; font-size: 15px; color: var(--text);">Текст аннотации...</div>
+        </div>
+    </div>
+
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeOrderModal()">&times;</button>
+            <h2 id="orderBookTitle" style="margin-bottom: 5px;">Название книги</h2>
+            <p id="orderBookAuthor" style="color: #64748b; margin-bottom: 20px;">Автор</p>
+            <div class="order-options">
+                <div class="order-option-card active" onclick="selectOrderOption('buy', this)">
+                    <span class="option-title">Навсегда в коллекцию</span>
+                    <span class="option-price" id="priceBuy">0 ₽</span>
+                </div>
+                <div class="order-option-card" onclick="selectOrderOption('rent_2w', this)">
+                    <span class="option-title">Аренда на 2 недели</span>
+                    <span class="option-price" id="price2w">0 ₽</span>
+                </div>
+                <div class="order-option-card" onclick="selectOrderOption('rent_1m', this)">
+                    <span class="option-title">Аренда на 1 месяц</span>
+                    <span class="option-price" id="price1m">0 ₽</span>
+                </div>
+                <div class="order-option-card" onclick="selectOrderOption('rent_3m', this)">
+                    <span class="option-title">Аренда на 3 месяца</span>
+                    <span class="option-price" id="price3m">0 ₽</span>
+                </div>
+            </div>
+            <button class="btn btn-primary w-full" style="margin-top: 20px;" onclick="confirmOrder()">Подтвердить заказ</button>
+        </div>
+    </div>
+
+    <div id="myBooksModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <button class="close-btn" onclick="closeMyBooksModal()">&times;</button>
+            <h2 style="margin-bottom: 20px;">Моя цифровая полка</h2>
+            <div id="myBooksList" class="my-books-list"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
